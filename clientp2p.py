@@ -40,23 +40,6 @@ class Message:
        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True,
                          indent=4)
 
-   def __init__(self, host, port, name=None):
-       # Атрибут для хранения текущего соединения:
-       self.current_connection = None
-       # Атрибут для хранения адреса текущего клиента
-       self.client_address = (host, port)
-
-       # Если имя не задано, то в качестве имени сохраняем адрес клиента:
-       if name is None:
-           self.name = f"{host[0]}:{port[1]}"
-       else:
-           self.name = name
-       # Создаем сокет, как это делали в предыдущей работе:
-       self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-       self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-       # Запускаем "прослушивание" указанного адреса:
-       self.socket.bind(self.client_address)
-
 class P2PClient:
    def __init__(self, host, port, name=None):
        # Атрибут для хранения текущего соединения:
@@ -150,7 +133,6 @@ class P2PClient:
        # Прикрепляем поток с обработкой получения сообщений к главному потоку:
        recv_thread.join()
 
-
 if __name__ == '__main__':
    # Задаем настройки распознавания параметров запуска используя argparse:
    parser = argparse.ArgumentParser()
@@ -171,4 +153,3 @@ if __name__ == '__main__':
        p2p_client.run()
    except (TypeError, ValueError):
        print("Incorrect arguments values, use --help/-h for more info.")
-
