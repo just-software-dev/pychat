@@ -113,7 +113,7 @@ class P2PClient:
                port = int(port)
                # Отправка сообщения о подключении:
                connect_message = Message(
-                   message=f'User @{self.name} wants to chat with you.\n',
+                   message=self.encryptString(f'User @{self.name} wants to chat with you.\n'),
                    sender_name=self.name
                )
                data = connect_message.to_json()
