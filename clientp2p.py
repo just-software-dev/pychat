@@ -15,6 +15,8 @@ import json
 # Подробнее: https://docs.python.org/3/library/json.html
 
 import threading
+import rncryptor
+import base64
 
 # Стандартный модуль threading.
 # Подробнее: https://docs.python.org/3/library/threading.html
@@ -41,11 +43,12 @@ class Message:
                          indent=4)
 
 class P2PClient:
-   def __init__(self, host, port, name=None):
+   def __init__(self, host, port, password, name=None):
        # Атрибут для хранения текущего соединения:
        self.current_connection = None
        # Атрибут для хранения адреса текущего клиента
        self.client_address = (host, port)
+       self.password = password
 
        # Если имя не задано, то в качестве имени сохраняем адрес клиента:
        if name is None:
@@ -70,7 +73,7 @@ class P2PClient:
                message = Message(**data)
                # Выводим сообщение в консоль:
                sender_name = getattr(message, 'sender_name', str(addr))
-               text = getattr(message, 'message', '')
+               text = decryptString(getattr(message, 'message', ''), self.password)
                sys.stdout.write(f'@{sender_name}: {text}\n')
                # Делаем небольшую задержку для уменьшения нагрузки:
                time.sleep(0.2)
@@ -88,7 +91,7 @@ class P2PClient:
            input_data = input()
            if input_data:
                # Создаем объект сообщения из введенных данных:
-               message = Message(message=input_data,
+               message = Message(message=encryptString(input_data, self.password),
                                  sender_name=self.name)
                # Отправляем данные:
                data = message.to_json()
@@ -140,16 +143,29 @@ if __name__ == '__main__':
                        help="p2p client host ip address, like 127.0.0.1")
    parser.add_argument("-p", "--port",
                        help="p2p client host port, like 8001")
+   parser.add_argument("-pw", "--password",
+                       help="symmetric encryption password")
    args = parser.parse_args()
 
    try:
        # Устанавливаем параметры P2P клиента
        host = args.host
        port = int(args.port)
+       password = args.password
        name = input("Name: ").strip()
        # Создаем объект P2P клиента
-       p2p_client = P2PClient(host, port, name=name)
+       p2p_client = P2PClient(host, port, password, name=name)
        # Запускаем P2P клиента
        p2p_client.run()
    except (TypeError, ValueError):
        print("Incorrect arguments values, use --help/-h for more info.")
+
+def decryptString(string, password):
+   cryptor = rncryptor.RNCryptor()
+   decrypted_data = cryptor.decrypt(string, password)
+   return decrypted_data
+
+def encryptString(string, password):
+   cryptor = rncryptor.RNCryptor()
+   encrypted_data = cryptor.encrypt(data, password)
+   return encrypted_data
