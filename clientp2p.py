@@ -76,10 +76,8 @@ class P2PClient:
                sys.stdout.write(f'@{sender_name}: {text}\n')
                # Делаем небольшую задержку для уменьшения нагрузки:
                time.sleep(0.2)
-           except socket.error as ex:
-               # Если возникли проблемы с соединением, завершаем программу.
-               print(f"P2PClient.receive: Что-то пошло не так: {ex}")
-               shutdown = True
+           except:
+               print("P2PClient.receive: Что-то пошло не так")
        self.socket.close()
 
    def send(self):
