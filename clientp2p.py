@@ -73,7 +73,7 @@ class P2PClient:
                message = Message(**data)
                # Выводим сообщение в консоль:
                sender_name = getattr(message, 'sender_name', str(addr))
-               text = decryptString(getattr(message, 'message', ''), self.password)
+               text = self.decryptString(getattr(message, 'message', ''))
                sys.stdout.write(f'@{sender_name}: {text}\n')
                # Делаем небольшую задержку для уменьшения нагрузки:
                time.sleep(0.2)
@@ -91,7 +91,7 @@ class P2PClient:
            input_data = input()
            if input_data:
                # Создаем объект сообщения из введенных данных:
-               message = Message(message=encryptString(input_data, self.password),
+               message = Message(message=self.encryptString(input_data),
                                  sender_name=self.name)
                # Отправляем данные:
                data = message.to_json()
@@ -136,6 +136,16 @@ class P2PClient:
        # Прикрепляем поток с обработкой получения сообщений к главному потоку:
        recv_thread.join()
 
+   def decryptString(self, string):
+       cryptor = rncryptor.RNCryptor()
+       decrypted_data = cryptor.decrypt(string, self.password)
+       return decrypted_data
+
+   def encryptString(self, string):
+       cryptor = rncryptor.RNCryptor()
+       encrypted_data = cryptor.encrypt(string, self.password)
+       return encrypted_data
+
 if __name__ == '__main__':
    # Задаем настройки распознавания параметров запуска используя argparse:
    parser = argparse.ArgumentParser()
@@ -159,13 +169,3 @@ if __name__ == '__main__':
        p2p_client.run()
    except (TypeError, ValueError):
        print("Incorrect arguments values, use --help/-h for more info.")
-
-def decryptString(string, password):
-   cryptor = rncryptor.RNCryptor()
-   decrypted_data = cryptor.decrypt(string, password)
-   return decrypted_data
-
-def encryptString(string, password):
-   cryptor = rncryptor.RNCryptor()
-   encrypted_data = cryptor.encrypt(data, password)
-   return encrypted_data
