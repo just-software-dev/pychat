@@ -58,10 +58,6 @@ class Message:
        self.socket.bind(self.client_address)
 
 class P2PClient:
-   """
-   Класс с "бизнес-логикой" p2p клиента.
-   """
-
    def __init__(self, host, port, name=None):
        # Атрибут для хранения текущего соединения:
        self.current_connection = None
@@ -80,10 +76,6 @@ class P2PClient:
        self.socket.bind(self.client_address)
 
    def receive(self):
-       """
-       Получает сообщение из сокета и выводит полученное сообщение
-       в стандартный поток вывода (консоль)
-       """
        global shutdown
        # Пока клиент не остановлен
        while not shutdown:
@@ -106,9 +98,6 @@ class P2PClient:
        self.socket.close()
 
    def send(self):
-       """
-       Принимает сообщение из потока ввода консоли и посылает его на сервер.
-       """
        global shutdown
        # Пока клиент не остановлен
        while not shutdown:
@@ -116,8 +105,8 @@ class P2PClient:
            input_data = input()
            if input_data:
                # Создаем объект сообщения из введенных данных:
-               data = {'message':input_data, 'sender_name': self.name}
-               message = Message(data)
+               message = Message(message=input_data,
+                                 sender_name=self.name)
                # Отправляем данные:
                data = message.to_json()
                try:
@@ -129,10 +118,6 @@ class P2PClient:
            time.sleep(0.2)
 
    def connect(self):
-       """
-       "Соединяет" с другим P2P клиентом.
-       Сохраняет заданное подключение и посылает клиенту сообщение.
-       """
        # Пока клиент не остановлен и соединение не задано
        while not shutdown and not self.current_connection:
            # Вводим, куда подключаться:
@@ -142,8 +127,10 @@ class P2PClient:
                ip, port = connect_data.split(":")
                port = int(port)
                # Отправка сообщения о подключении:
-               data = {'message':f'User @{self.name} wants to chat with you.\n', 'sender_name': self.name}
-               connect_message = Message(data)
+               connect_message = Message(
+                   message=f'User @{self.name} wants to chat with you.\n',
+                   sender_name=self.name
+               )
                data = connect_message.to_json()
                self.current_connection = (ip, port)
                self.socket.sendto(data.encode('utf-8'),
@@ -154,9 +141,6 @@ class P2PClient:
                self.current_connection = None
 
    def run(self):
-       """
-       Запускает работу P2P клиента.
-       """
        self.connect()
        # В отдельном потоке вызываем обработку получения сообщений:
        recv_thread = threading.Thread(target=self.receive)
