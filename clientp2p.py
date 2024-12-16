@@ -16,7 +16,6 @@ import json
 
 import threading
 import rncryptor
-import base64
 
 # Стандартный модуль threading.
 # Подробнее: https://docs.python.org/3/library/threading.html
@@ -138,12 +137,12 @@ class P2PClient:
 
    def decryptString(self, string):
        cryptor = rncryptor.RNCryptor()
-       decrypted_data = cryptor.decrypt(string, self.password)
+       decrypted_data = cryptor.decrypt(bytes.fromhex(string), self.password)
        return decrypted_data
 
    def encryptString(self, string):
        cryptor = rncryptor.RNCryptor()
-       encrypted_data = cryptor.encrypt(string, self.password)
+       encrypted_data = cryptor.encrypt(string, password).hex()
        return encrypted_data
 
 if __name__ == '__main__':
