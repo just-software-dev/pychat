@@ -87,8 +87,8 @@ class Message:
            input_data = input()
            if input_data:
                # Создаем объект сообщения из введенных данных:
-               message = Message(message=input_data,
-                                 sender_name=self.name)
+               data = {'message':input_data, 'sender_name': self.name}
+               message = Message(data)
                # Отправляем данные:
                data = message.to_json()
                try:
@@ -109,10 +109,8 @@ class Message:
                ip, port = connect_data.split(":")
                port = int(port)
                # Отправка сообщения о подключении:
-               connect_message = Message(
-                   message=f'User @{self.name} wants to chat with you.\n',
-                   sender_name=self.name
-               )
+               data = {'message':f'User @{self.name} wants to chat with you.\n', 'sender_name': self.name}
+               connect_message = Message(data)
                data = connect_message.to_json()
                self.current_connection = (ip, port)
                self.socket.sendto(data.encode('utf-8'),
@@ -191,8 +189,8 @@ class P2PClient:
            input_data = input()
            if input_data:
                # Создаем объект сообщения из введенных данных:
-               message = Message(message=input_data,
-                                 sender_name=self.name)
+               data = {'message':input_data, 'sender_name': self.name}
+               message = Message(data)
                # Отправляем данные:
                data = message.to_json()
                try:
@@ -217,10 +215,8 @@ class P2PClient:
                ip, port = connect_data.split(":")
                port = int(port)
                # Отправка сообщения о подключении:
-               connect_message = Message(
-                   message=f'User @{self.name} wants to chat with you.\n',
-                   sender_name=self.name
-               )
+               data = {'message':f'User @{self.name} wants to chat with you.\n', 'sender_name': self.name}
+               connect_message = Message(data)
                data = connect_message.to_json()
                self.current_connection = (ip, port)
                self.socket.sendto(data.encode('utf-8'),
